@@ -1,0 +1,7 @@
+sklearn
+numpy
+pandas
+plotly
+dash
+jupyter_dash
+psutil

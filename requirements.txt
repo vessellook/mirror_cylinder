@@ -1,4 +1,3 @@
-matplotlib
 sklearn
-sympy
 numpy
+pandas
