@@ -1,5 +1,7 @@
+from dataclasses import dataclass, field
 from functools import cached_property
 from itertools import product
+from numbers import Real
 
 import numpy as np
 import pandas as pd
@@ -7,22 +9,49 @@ from sklearn.tree import DecisionTreeRegressor
 
 from problem.constants import COORD_NAMES, A_COORD_NAMES, C_COORD_NAMES, E_COORD_NAMES, ALMOST_ZERO
 from problem.vector import vector_f, Vector, vector_c, vector_a, vector_e
-from problem.vector_function import (VectorFunctionC2E, VectorFunctionC2A, CompositeVectorFunction,
+from problem.vector_function import (VectorFunction, VectorFunctionC2E, VectorFunctionC2A, CompositeVectorFunction,
                                      VectorRegressor)
 from problem.figures.ray import Ray
 
 
+def _convert_vector_data(v):
+    x, y, z = v.x, v.y, v.z
+    return (
+        x * 0 + 1,
+        x,
+        y,
+        z,
+        np.square(x),
+        np.square(y),
+        np.square(z),
+        1 / (x + ALMOST_ZERO),
+        1 / (y + ALMOST_ZERO),
+        1 / (z + ALMOST_ZERO),
+        x * y,
+        x * z,
+        y * z,
+        np.arctan(y / x),
+    )
+
+
+@dataclass
 class Problem:
-    def __init__(self, r, d, h):
-        self.r = r
-        self.d = d
-        self.h = h
-        self.f = vector_f(r=r, d=d, h=h)
-        self.c2a = VectorFunctionC2A(r=r, d=d, h=h,
-                                     src_coord_names=dict(zip(COORD_NAMES, C_COORD_NAMES)),
+    r: Real
+    d: Real
+    h: Real
+    f : Vector = field(init=False)
+    c2a : VectorFunction = field(init=False)
+    c2e : VectorFunction = field(init=False)
+
+    def __post_init__(self):
+        self.f = vector_f(r=self.r, d=self.d, h=self.h)
+        self.c2a = VectorFunctionC2A(r=self.r, d=self.d, h=self.h,
+                                     src_coord_names=dict(
+                                         zip(COORD_NAMES, C_COORD_NAMES)),
                                      dest_coord_names=dict(zip(COORD_NAMES, A_COORD_NAMES)))
-        self.c2e = VectorFunctionC2E(r=r, d=d, h=h,
-                                     src_coord_names=dict(zip(COORD_NAMES, C_COORD_NAMES)),
+        self.c2e = VectorFunctionC2E(r=self.r, d=self.d, h=self.h,
+                                     src_coord_names=dict(
+                                         zip(COORD_NAMES, C_COORD_NAMES)),
                                      dest_coord_names=dict(zip(COORD_NAMES, E_COORD_NAMES)))
 
     def get_ray(self, *, a: Vector = None, c: Vector = None, e: Vector = None):
@@ -35,33 +64,13 @@ class Problem:
         else:
             raise AttributeError(
                 'At least one vector from a, c, e should be passed as param')
-            
-    @staticmethod
-    def _convert_vector_data(v):
-        x, y, z = v.x, v.y, v.z
-        return (
-            x * 0 + 1,
-            x,
-            y,
-            z,
-            np.square(x),
-            np.square(y),
-            np.square(z),
-            1 / (x + ALMOST_ZERO),
-            1 / (y + ALMOST_ZERO),
-            1 / (z + ALMOST_ZERO),
-            x * y,
-            x * z,
-            y * z,
-            np.arctan(y / x),
-        )
 
     @cached_property
     def a2c(self):
-        src_coord_names=dict(zip(COORD_NAMES, A_COORD_NAMES))
-        dest_coord_names=dict(zip(COORD_NAMES, C_COORD_NAMES))
+        src_coord_names = dict(zip(COORD_NAMES, A_COORD_NAMES))
+        dest_coord_names = dict(zip(COORD_NAMES, C_COORD_NAMES))
         func = VectorRegressor([DecisionTreeRegressor() for _ in range(3)],
-                               convert_data=Problem._convert_vector_data,
+                               convert_data=_convert_vector_data,
                                src_coord_names=src_coord_names,
                                dest_coord_names=dest_coord_names)
         df = self.get_dataframe()
@@ -73,10 +82,10 @@ class Problem:
 
     @cached_property
     def e2c(self):
-        src_coord_names=dict(zip(COORD_NAMES, E_COORD_NAMES))
-        dest_coord_names=dict(zip(COORD_NAMES, C_COORD_NAMES))
+        src_coord_names = dict(zip(COORD_NAMES, E_COORD_NAMES))
+        dest_coord_names = dict(zip(COORD_NAMES, C_COORD_NAMES))
         func = VectorRegressor([DecisionTreeRegressor() for _ in range(3)],
-                               convert_data=Problem._convert_vector_data,
+                               convert_data=_convert_vector_data,
                                src_coord_names=src_coord_names,
                                dest_coord_names=dest_coord_names)
         df = self.get_dataframe()

@@ -2,17 +2,20 @@
 This module contains class PhysicalRay that represents a ray passed from point of view F 
 to point of mirror cylinder C and point of xOy surface A. Also it contains point E
 """
+from dataclasses import dataclass
+from numbers import Real
+
 import numpy as np
 import plotly.graph_objects as go
 
 from problem.vector import Vector
 
 
+@dataclass
 class Cylinder:
-    def __init__(self, *, r, h, d=None):
-        self.r = r
-        self.h = h
-        self.d = d
+    r: Real
+    h: Real
+    d: Real = None
 
     def points(self, n=100, m=100):
         return map(Vector._make, zip(*self.coord_lists(n, m)))

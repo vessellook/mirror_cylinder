@@ -3,19 +3,21 @@ This module contains class PhysicalRay that represents a ray passed from point o
 to point of mirror cylinder C and point of xOy surface A. Also it contains point E
 """
 
+from dataclasses import dataclass
+
 import numpy as np
 from plotly.graph_objects import Scatter3d
 
 from problem.vector import Vector
 
 
+@dataclass
 class Ray:
-    def __init__(self, *, a: Vector, c: Vector, e: Vector, f: Vector):
-        self.a = a
-        self.c = c
-        self.e = e
-        self.f = f
-
+    a: Vector
+    c: Vector
+    e: Vector
+    f: Vector
+    
     def trace(self, n: int, m: int = None):
         if m is None:
             m = n

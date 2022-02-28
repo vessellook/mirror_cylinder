@@ -27,7 +27,8 @@ def c2e(cx, cy, cz, *, h, d, r):
 
 
 class VectorFunction(abc.ABC):
-    def __init__(self, src_coord_names: dict = DEFAULT_COORD_MAP, dest_coord_names: dict = DEFAULT_COORD_MAP):
+    def __init__(self, src_coord_names: dict = DEFAULT_COORD_MAP,
+                 dest_coord_names: dict = DEFAULT_COORD_MAP):
         self._src_convert_names = {v: k for k,v in src_coord_names.items()}
         self._dest_coord_names = dest_coord_names
     
@@ -55,7 +56,9 @@ class VectorFunction(abc.ABC):
 
 
 class CompositeVectorFunction(VectorFunction):
-    def __init__(self, vector_functions: Iterable, src_coord_names: dict = DEFAULT_COORD_MAP, dest_coord_names: dict = DEFAULT_COORD_MAP):
+    def __init__(self, vector_functions: Iterable,
+                 src_coord_names: dict = DEFAULT_COORD_MAP,
+                 dest_coord_names: dict = DEFAULT_COORD_MAP):
         if not vector_functions:
             raise AttributeError(
                 'should be at least one item in vector_functions param')
@@ -74,7 +77,8 @@ class CompositeVectorFunction(VectorFunction):
 
 
 class VectorFunctionC2A(VectorFunction):
-    def __init__(self, src_coord_names: dict = DEFAULT_COORD_MAP, dest_coord_names: dict = DEFAULT_COORD_MAP, *, h, d, r):
+    def __init__(self, src_coord_names: dict = DEFAULT_COORD_MAP,
+                 dest_coord_names: dict = DEFAULT_COORD_MAP, *, h, d, r):
         super().__init__(src_coord_names, dest_coord_names)
         self.h = h
         self.d = d
@@ -89,7 +93,8 @@ class VectorFunctionC2A(VectorFunction):
 
 
 class VectorFunctionC2E(VectorFunction):
-    def __init__(self, src_coord_names: dict = DEFAULT_COORD_MAP, dest_coord_names: dict = DEFAULT_COORD_MAP, *, h, d, r):
+    def __init__(self, src_coord_names: dict = DEFAULT_COORD_MAP,
+                 dest_coord_names: dict = DEFAULT_COORD_MAP, *, h, d, r):
         super().__init__(src_coord_names, dest_coord_names)
         self.h = h
         self.d = d
@@ -105,7 +110,8 @@ class VectorFunctionC2E(VectorFunction):
 
 class VectorRegressor(VectorFunction):
     def __init__(self, regressors: Iterable, convert_data: Callable[[Vector], Iterable],
-                 src_coord_names: dict = DEFAULT_COORD_MAP, dest_coord_names: dict = DEFAULT_COORD_MAP):
+                 src_coord_names: dict = DEFAULT_COORD_MAP, 
+                 dest_coord_names: dict = DEFAULT_COORD_MAP):
         super().__init__(src_coord_names, dest_coord_names)
         self._regressors = regressors
         self._convert_data = convert_data
